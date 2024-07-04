@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response
 from flask_migrate import Migrate
 
 from models import db, Bakery, BakedGood
@@ -20,19 +20,29 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    return ''
+    bakeries = Bakery.query.all()
+    return make_response([bakery.to_dict() for bakery in bakeries])
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    return ''
+    bakery = Bakery.query.get(id)
+    if bakery:
+        return make_response(bakery.to_dict())
+    else:
+        return make_response({"error": "Bakery not found"}), 404
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    return ''
+    baked_goods = BakedGood.query.order_by(BakedGood.price.desc()).all()
+    return make_response([baked_good.to_dict() for baked_good in baked_goods])
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return ''
+    baked_good = BakedGood.query.order_by(BakedGood.price.desc()).first()
+    if baked_good:
+        return make_response(baked_good.to_dict())
+    else:
+        return make_response({"error": "No baked goods found"}), 404
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
